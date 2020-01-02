@@ -1,13 +1,160 @@
+<link rel="stylesheet" href="/static/qiniu/style/index.css">
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
 <body>
-<div>
-    版本二
+<div class="mainContainer">
+    <form method="post" enctype="multipart/form-data" id="form" action="upload">
+        <div id="box" class="hide">
+            <button class="select-button">选择文件</button>
+            <a class="file-input" id="select"></a>
+        </div>
+        <div id="box2">
+            <button class="select-button">选择文件</button>
+            <input class="file-input" type="file" id="select2"/>
+        </div>
+    </form>
+    <div class="nav-box" style="margin-top:30px">
+
+        <div id="process" class="">
+            <div class="tab-pane  in active" id="h5">
+                <table class="table table-striped table-hover text-left" style="margin-top:30px">
+                    <tbody id="fsUploadProgress">
+
+
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
 </div>
+<!-- 模态框（Modal） -->
+
 </body>
-</html>
+<!-- 模态框（Modal） -->
+
+<script>
+    var localdomain ;
+    var uploadvoidlist_yuan = {$uploadvoidlist};
+    var uploadvoidlist = []
+
+    for(var ts in uploadvoidlist_yuan){
+
+        uploadvoidlist.push(getFileName(uploadvoidlist_yuan[ts]))
+        var tstr = '<tr>\n' +
+            '    <td width="50"><span>'+uploadvoidlist[ts]+'</span>\n' +
+            '    <div class="wraper"><a class="linkWrapper"></a></div>\n' +
+            '    </td>\n' +
+            '    <td>\n' +
+            '    <div style="overflow:hidden">\n' +
+            '        <div id="totalBar"\n' +
+            '    style="float:left;width:80%;height:30px;border:1px solid;border-radius:3px"\n' +
+            '    class="hide">\n' +
+            '        <div id="totalBarColor"\n' +
+            '    style="width: 100%; border: 0px; background-color: rgba(232, 152, 39, 0.8); height: 28px;"></div>\n' +
+            '        <p class="speed">进度：100% </p></div>\n' +
+            '    <div class="control-container">\n' +
+            '        <video height="200" controls="controls" autoplay="autoplay">\n' +
+            '        <source src="'+uploadvoidlist_yuan[ts]+'"\n' +
+            '    type="video/mp4">\n' +
+            '        </video>\n' +
+            '        </div>\n' +
+            '        </div>\n' +
+            '        </td>\n' +
+            '        <td><a href="#" onclick="delvodeo(this)">删除</a></td>\n' +
+            '    </tr>'
+
+
+        $('#fsUploadProgress').append(tstr)
+    }
+
+    function getFileName(o){
+        var pos= o.lastIndexOf("/")
+        return o.substring(pos+1)
+    }
+
+</script>
+<!--[if lte IE 8]>
+<script src="http://cdn.bootcss.com/jquery/1.9.0/jquery.min.js"></script>
+<![endif]-->
+<!--[if gt IE 8]>
+<script src="http://cdn.static.runoob.com/libs/jquery/1.10.2/jquery.min.js"></script>
+<![endif]-->
+<!--[if !IE]><!-->
+<script src="https://cdn.bootcss.com/jquery/1.10.2/jquery.min.js"></script>
+<!--<![endif]-->
+<script src="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+<script src="https://cdn.bootcss.com/json3/3.3.2/json3.min.js"></script>
+<script type="text/javascript" src='/static/qiniu/js/plupload.full.min.js'></script>
+<script type="text/javascript" src='https://unpkg.com/qiniu-js@2.5.5/dist/qiniu.min.js'></script>
+<script type="text/javascript" src='/static/qiniu/component/widget.js'></script>
+<script type="text/javascript" src='/static/qiniu/common/common.js'></script>
+<script type="text/javascript" src='/static/qiniu/component/ui.js'></script>
+<script type="text/javascript" src='/static/qiniu/js/md5.js'></script>
+<script type="text/javascript" src='/static/qiniu/scripts/uploadWithOthers.js'></script>
+<script type="text/javascript" src='/static/qiniu/scripts/uploadWithForm.js'></script>
+<script type="text/javascript" src='/static/qiniu/scripts/uploadWithSDK.js'></script>
+<script>
+    $.ajax({
+        'url': "/system/ajax/gettoken", success: function (res) {
+            var token = res.uptoken;
+            var domain = res.domain;
+            localdomain = domain
+            var config = {
+                useCdnDomain: true,
+                disableStatisticsReport: false,
+                retryCount: 6,
+                region: qiniu.region.z1
+            };
+            var putExtra = {
+                fname: "",
+                params: {},
+                mimeType: null
+            };
+            $(".nav-box")
+                .find("a")
+                .each(function (index) {
+                    $(this).on("click", function (e) {
+                        switch (e.target.name) {
+                            case "h5":
+                                uploadWithSDK(token, putExtra, config, domain);
+                                break;
+                            case "expand":
+                                uploadWithOthers(token, putExtra, config, domain);
+                                break;
+                            case "directForm":
+                                uploadWithForm(token, putExtra, config);
+                                break;
+                            default:
+                                "";
+                        }
+                    });
+                });
+            imageControl(domain);
+            uploadWithSDK(token, putExtra, config, domain);
+        }
+    })
+
+
+
+    Array.prototype.remove = function(val) {
+        var index = this.indexOf(val);
+        if (index > -1) {
+            this.splice(index, 1);
+        }
+    };
+
+    function delvodeo(obj) {
+        var s = $(obj).parent().parent().children(0).find('span').html()
+        $(obj).parent().parent().remove()
+        uploadvoidlist.remove(s);
+        console.log(uploadvoidlist)
+    }
+
+
+
+
+    console.log(uploadvoidlist)
+
+</script>
+
+
